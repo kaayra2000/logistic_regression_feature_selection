@@ -30,7 +30,7 @@
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     \begin{abstract}
-    Bu çalışmada, Online News Popularity veri kümesi üzerinde üç farklı özellik seçimi yönteminin ikili sınıflandırma performansına etkisi incelenmiştir. Filtreleme (Pearson Korelasyonu), Sarmalayıcı (RFE + Lojistik Regresyon) ve Gömülü (Random Forest) yöntemleri kullanılarak en önemli 15 özellik belirlenmiştir. Lojistik Regresyon sınıflandırıcısı ile 5-fold cross validation yöntemi uygulanarak modeller değerlendirilmiştir. Deneysel sonuçlar, tüm özelliklerin kullanıldığı modelin \%65.52 doğruluk oranı ile en yüksek performansı sağladığını, ancak özellik seçimi yöntemlerinin hesaplama maliyetini önemli ölçüde azalttığını göstermektedir. Sarmalayıcı yöntem (RFE), 15 özellik ile \%65.10 doğruluk oranına ulaşarak özellik seçimi yöntemleri arasında en başarılı sonucu vermiştir.
+    Bu çalışmada, Online News Popularity veri kümesi üzerinde üç farklı özellik seçimi yönteminin ikili sınıflandırma performansına etkisi incelenmiştir. Filtreleme (Pearson Korelasyonu), Sarmalayıcı (RFE + Lojistik Regresyon) ve Gömülü (Random Forest) yöntemleri kullanılarak en önemli 15 özellik belirlenmiştir. Lojistik Regresyon sınıflandırıcısı ile 5-fold cross validation yöntemi uygulanarak modeller değerlendirilmiştir. Deneysel sonuçlar, Sarmalayıcı (RFE) yönteminin 15 özellik ile \%65.10 doğruluk oranına ulaşarak özellik seçimi yöntemleri arasında en başarılı sonucu verdiğini göstermektedir. Ayrıca optimal özellik sayısı analizi yapılarak, RFE ile 22 özellik kullanıldığında \%65.63 doğruluk oranına ulaşılmış olup, bu değer tüm özelliklerin (\%65.52) kullanıldığı durumun üzerindedir. Bu bulgular, özellik seçiminin model performansını artırırken hesaplama maliyetini de önemli ölçüde azalttığını ortaya koymaktadır.
     \end{abstract}
 
     \begin{IEEEkeywords}
@@ -189,20 +189,41 @@
     \hline
     \textbf{Yöntem} & \textbf{Öz. Sayısı} & \textbf{Accuracy} & \textbf{F1-Skor} & \textbf{Süre (s)} \\
     \hline
-    Tüm Özellikler & 58 & \textbf{0.6552} & \textbf{0.6544} & 0.182 \\
-    Filtreleme & 15 & 0.6431 & 0.6413 & \textbf{0.017} \\
-    \textbf{Sarmalayıcı} & 15 & \textbf{0.6510} & \textbf{0.6502} & 0.035 \\
-    Gömülü & 15 & 0.6278 & 0.6253 & 0.022 \\
+    Tüm Özellikler & 58 & 0.6552 & 0.6544 & 0.429 \\
+    Filtreleme & 15 & 0.6431 & 0.6413 & \textbf{0.048} \\
+    \textbf{Sarmalayıcı (RFE)} & 15 & 0.6510 & 0.6502 & 0.099 \\
+    Gömülü & 15 & 0.6278 & 0.6253 & 0.055 \\
+    \textbf{RFE Optimal} & 22 & \textbf{0.6563} & \textbf{0.6553} & 0.000 \\
     \hline
     \end{tabular}
     \end{table}
 
     Sonuçlara göre:
     \begin{itemize}
-        \item Tüm özelliklerle (58 özellik) eğitilen model \%65.52 doğruluk oranı ile en yüksek performansı sağlamıştır.
-        \item Özellik seçimi yöntemleri arasında \textbf{Sarmalayıcı (RFE)} yöntemi \%65.10 doğruluk oranı ile en başarılı sonucu vermiştir.
+        \item \textbf{RFE Optimal (22 özellik)} yöntemi \%65.63 doğruluk oranı ile tüm yöntemler arasında en yüksek performansı sağlamıştır.
+        \item Tüm özelliklerle (58 özellik) eğitilen model \%65.52 doğruluk oranına ulaşmıştır.
+        \item Özellik seçimi yöntemleri arasında \textbf{Sarmalayıcı (RFE)} yöntemi 15 özellik ile \%65.10 doğruluk oranı ile en başarılı sonucu vermiştir.
         \item Filtreleme yöntemi \%64.31, Gömülü yöntem ise \%62.78 doğruluk oranlarına ulaşmıştır.
-        \item Eğitim süresi açısından özellik seçimi yöntemleri önemli avantaj sağlamıştır. Filtreleme yöntemi 0.017 saniye ile en hızlı eğitim süresine sahiptir.
+        \item Eğitim süresi açısından özellik seçimi yöntemleri önemli avantaj sağlamıştır. Filtreleme yöntemi 0.048 saniye ile en hızlı eğitim süresine sahiptir.
+    \end{itemize}
+
+    \subsection{Optimal Özellik Sayısı Analizi}
+
+    RFE yönteminin en başarılı özellik seçimi yöntemi olduğu tespit edildikten sonra, optimal özellik sayısını belirlemek amacıyla ek bir analiz gerçekleştirilmiştir. Bu analizde, RFE ile 1'den başlayarak başarı düşene kadar farklı özellik sayıları test edilmiş ve her bir durumda model performansı ölçülmüştür. Şekil~\ref{fig:optimal_feature}'de optimal özellik sayısı analizi gösterilmektedir.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\linewidth]{optimal_feature_count_analysis.png}
+        \caption{Optimal Özellik Sayısı Analizi: RFE ile farklı özellik sayılarının doğruluk performansına etkisi. Yeşil çizgi optimal noktayı (22 özellik, \%65.63 doğruluk) göstermektedir.}
+        \label{fig:optimal_feature}
+    \end{figure}
+
+    Optimal özellik sayısı analizi incelendiğinde:
+    \begin{itemize}
+        \item \textbf{Optimal nokta:} 22 özellik ile \%65.63 doğruluk oranına ulaşılmıştır. Bu değer, 58 özellik kullanıldığında elde edilen \%65.52 değerinin üzerindedir.
+        \item \textbf{Performans eğrisi:} Özellik sayısı arttıkça performans genel olarak artmakta, ancak belirli bir noktadan sonra (yaklaşık 20-25 özellik) plato yapmaktadır.
+        \item \textbf{Boyut azaltma:} 22 özellik ile 58 özelliğe kıyasla \%62 boyut azaltımı sağlanırken, performansta kayıp yaşanmamış, aksine küçük bir artış gözlemlenmiştir.
+        \item \textbf{Aşırı öğrenme riski:} Çok fazla özellik kullanımı aşırı öğrenme riskini artırabilir. Optimal özellik sayısı bu riski minimize etmektedir.
     \end{itemize}
 
     \subsection{Aşırı Öğrenme Analizi}
@@ -217,76 +238,118 @@
 
     Hiçbir yöntemde aşırı öğrenme tespit edilmemiştir. Bu durum, Lojistik Regresyonun L2 regularization özelliği sayesinde modelin genelleme yeteneğini koruduğunu göstermektedir.
 
-    \subsection{Karışıklık Matrisi}
+    \subsection{Karışıklık Matrisleri}
 
-    En başarılı yöntem olan Tüm Özellikler için karışıklık matrisi Şekil~\ref{fig:confusion_matrix}'de verilmiştir.
+    En başarılı özellik seçimi yöntemi olan Sarmalayıcı (RFE) için karışıklık matrisi Şekil~\ref{fig:confusion_matrix}'de verilmiştir.
 
     \begin{figure}[H]
         \centering
         \includegraphics[width=\linewidth]{best_method_confusion_matrix.png}
-        \caption{Tüm Özellikler Yöntemi İçin Karışıklık Matrisi}
+        \caption{Sarmalayıcı (RFE) Yöntemi İçin Karışıklık Matrisi (15 özellik)}
         \label{fig:confusion_matrix}
     \end{figure}
 
     Karışıklık matrisine göre:
     \begin{itemize}
-        \item \textbf{True Negative (TN):} 2236 örnek doğru olarak "popüler değil" olarak tahmin edilmiştir.
-        \item \textbf{False Positive (FP):} 1462 örnek yanlışlıkla "popüler" olarak tahmin edilmiştir.
-        \item \textbf{False Negative (FN):} 1272 örnek yanlışlıkla "popüler değil" olarak tahmin edilmiştir.
-        \item \textbf{True Positive (TP):} 2959 örnek doğru olarak "popüler" olarak tahmin edilmiştir.
+        \item \textbf{True Negative (TN):} 2217 örnek doğru olarak ``popüler değil'' sınıfına atanmıştır.
+        \item \textbf{False Positive (FP):} 1481 örnek yanlışlıkla ``popüler'' olarak tahmin edilmiştir.
+        \item \textbf{False Negative (FN):} 1286 örnek yanlışlıkla ``popüler değil'' olarak tahmin edilmiştir.
+        \item \textbf{True Positive (TP):} 2945 örnek doğru olarak ``popüler'' sınıfına atanmıştır.
     \end{itemize}
 
-    \subsection{Yöntem Karşılaştırma Grafiği}
-
-    Tüm yöntemlerin karışıklık matrisleri Şekil~\ref{fig:all_confusion}'da karşılaştırmalı olarak gösterilmiştir.
+    Optimal RFE yöntemi (22 özellik) için karışıklık matrisi Şekil~\ref{fig:optimal_confusion}'da gösterilmektedir.
 
     \begin{figure}[H]
         \centering
-        \includegraphics[width=\linewidth]{all_confusion_matrices.png}
-        \caption{Tüm Yöntemler İçin Karışıklık Matrisleri}
+        \includegraphics[width=\linewidth]{optimal_rfe_confusion_matrix.png}
+        \caption{RFE Optimal Yöntemi İçin Karışıklık Matrisi (22 özellik)}
+        \label{fig:optimal_confusion}
+    \end{figure}
+
+    Optimal RFE yöntemi, 22 özellik kullanarak tüm özelliklerden daha iyi performans göstermektedir. Bu durum, gereksiz özelliklerin modele gürültü kattığını ve optimal özellik alt kümesinin daha iyi genelleme yeteneği sağladığını göstermektedir.
+
+    \subsection{Özellik Seçimi Yöntemleri Karşılaştırması}
+
+    Üç temel özellik seçimi yönteminin (Filtreleme, Sarmalayıcı, Gömülü) karışıklık matrisleri Şekil~\ref{fig:all_confusion}'da karşılaştırmalı olarak gösterilmiştir.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\linewidth]{feature_selection_confusion_matrices.png}
+        \caption{Özellik Seçimi Yöntemleri İçin Karışıklık Matrisleri Karşılaştırması}
         \label{fig:all_confusion}
     \end{figure}
 
     Karışıklık matrisleri incelendiğinde yöntemler arasında belirgin farklılıklar gözlemlenmektedir:
 
     \begin{itemize}
-        \item \textbf{Tüm Özellikler:} En dengeli dağılıma sahiptir. True Positive (TP) oranı en yüksek (2959) olup, modelin popüler haberleri tespit etme kapasitesi en iyidir. Ancak False Positive (FP) değeri de görece yüksektir (1462), bu da bazı popüler olmayan haberlerin yanlış sınıflandırıldığını gösterir.
+        \item \textbf{Filtreleme (Pearson):} Popüler haberleri tespit etmede (TP) makul performans gösterirken, True Negative (TN) değeri nispeten düşüktür. Bu durum, yöntemin doğrusal korelasyona dayalı olmasından kaynaklanmakta ve karmaşık ilişkileri yakalayamamaktadır.
         
-        \item \textbf{Filtreleme (Pearson):} Popüler haberleri tespit etmede (TP) makul performans gösterirken, True Negative (TN) değeri düşüktür. Bu durum, yöntemin doğrusal korelasyona dayalı olmasından kaynaklanmakta ve karmaşık ilişkileri yakalayamamaktadır.
-        
-        \item \textbf{Sarmalayıcı (RFE):} Tüm özellikler yöntemine en yakın sonuçları vermektedir. TP ve TN değerleri dengeli olup, özellik seçimi yöntemleri arasında en başarılı performansı sergilemektedir. RFE'nin Lojistik Regresyon ile optimize edilmiş olması bu başarıyı açıklamaktadır.
+        \item \textbf{Sarmalayıcı (RFE):} En dengeli dağılıma sahiptir. TP ve TN değerleri dengeli olup, özellik seçimi yöntemleri arasında en başarılı performansı sergilemektedir. RFE'nin Lojistik Regresyon ile optimize edilmiş olması bu başarıyı açıklamaktadır.
         
         \item \textbf{Gömülü (Random Forest):} En düşük TP değerine sahiptir, bu da popüler haberleri tespit etmede zorluk yaşadığını gösterir. Random Forest'ın özellik önem skorları, Lojistik Regresyon sınıflandırıcısı için optimal olmayan bir özellik kümesi seçmiş olabilir.
     \end{itemize}
 
-    Ayrıca yöntemlerin performans karşılaştırması Şekil~\ref{fig:method_comparison}'de grafik olarak sunulmuştur.
+    \subsection{Yöntem Performans Karşılaştırma Grafikleri}
+
+    Yöntemlerin performans karşılaştırması Şekil~\ref{fig:method_comparison}'de grafik olarak sunulmuştur.
 
     \begin{figure}[H]
         \centering
         \includegraphics[width=\linewidth]{method_comparison.png}
-        \caption{Yöntem Performans Karşılaştırması}
+        \caption{Temel Yöntemler Performans Karşılaştırması: Doğruluk, F1-Skor ve Eğitim Süresi metrikleri açısından yöntemlerin karşılaştırılması}
         \label{fig:method_comparison}
     \end{figure}
 
     Performans karşılaştırma grafiği analiz edildiğinde aşağıdaki çıkarımlar yapılabilir:
 
     \begin{itemize}
-        \item \textbf{Doğruluk-Verimlilik Dengesi:} Tüm özellikler en yüksek doğruluğu sağlarken, eğitim süresi de en uzundur (0.182s). Özellik seçimi yöntemleri bu süreyi yaklaşık 5-10 kat kısaltmaktadır.
+        \item \textbf{Doğruluk-Verimlilik Dengesi:} Tüm özellikler en yüksek doğruluğu sağlarken, eğitim süresi de en uzundur (0.429s). Özellik seçimi yöntemleri bu süreyi yaklaşık 4-9 kat kısaltmaktadır.
         
         \item \textbf{Yöntemler Arası Performans Farkı:} Tüm özellikler (\%65.52) ile Sarmalayıcı (\%65.10) arasındaki fark sadece \%0.42'dir. Bu, 15 özellik ile 58 özelliğe çok yakın performans elde edilebileceğini göstermektedir.
         
         \item \textbf{F1-Skor Tutarlılığı:} Accuracy ve F1-skor değerleri tüm yöntemlerde birbirine yakındır, bu da sınıf dengesizliğinin ciddi bir problem olmadığını göstermektedir.
         
-        \item \textbf{En Hızlı Yöntem:} Filtreleme yöntemi 0.017s ile en kısa eğitim süresine sahiptir, ancak doğruluk açısından Sarmalayıcı'nın gerisinde kalmaktadır.
+        \item \textbf{En Hızlı Yöntem:} Filtreleme yöntemi 0.048s ile en kısa eğitim süresine sahiptir, ancak doğruluk açısından Sarmalayıcı'nın gerisinde kalmaktadır.
         
         \item \textbf{Gömülü Yöntem Performansı:} Random Forest tabanlı özellik seçimi, Lojistik Regresyon sınıflandırıcısı ile en düşük performansı vermiştir. Bu durum, ağaç tabanlı önem skorlarının doğrusal modeller için optimize olmadığını göstermektedir.
+    \end{itemize}
+
+    Optimal RFE dahil tüm yöntemlerin karşılaştırması Şekil~\ref{fig:method_comparison_optimal}'de gösterilmektedir.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\linewidth]{method_comparison_with_optimal.png}
+        \caption{Optimal RFE Dahil Yöntem Karşılaştırması}
+        \label{fig:method_comparison_optimal}
+    \end{figure}
+
+    Optimal RFE dahil karşılaştırma grafiğinden çıkarılabilecek sonuçlar:
+
+    \begin{itemize}
+        \item \textbf{RFE Optimal üstünlüğü:} 22 özellik ile \%65.63 doğruluk oranı, hem tüm özellikleri (\%65.52) hem de 15 özellikli RFE'yi (\%65.10) geride bırakmaktadır.
+        
+        \item \textbf{Özellik sayısı optimizasyonu:} Bu sonuç, özellik sayısının 15 ile sınırlandırılmasının optimal olmadığını, daha fazla özelliğin performansı artırabileceğini göstermektedir.
+        
+        \item \textbf{Hesaplama maliyeti:} Optimal özellik sayısı belirleme işlemi ek hesaplama maliyeti gerektirse de, elde edilen performans kazancı bu maliyeti dengelemektedir.
     \end{itemize}
 
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     \section{Sonuç}
 
-    Bu çalışmada, Online News Popularity veri kümesi üzerinde üç farklı özellik seçimi yönteminin sınıflandırma performansına etkisi incelenmiştir. Deneysel sonuçlar, tüm özelliklerin kullanılmasının en yüksek doğruluk oranını (\%65.52) sağladığını, ancak özellik sayısının 15'e düşürülmesiyle bile rekabetçi sonuçlar elde edilebileceğini göstermektedir. Özellik seçimi yöntemleri arasında Sarmalayıcı (RFE) yöntemi \%65.10 doğruluk oranı ile en başarılı performansı sergilemiştir. Bu sonuç, RFE yönteminin Lojistik Regresyon için optimize edilmiş özellik seçimi yapmasından kaynaklanmaktadır. Anahtar kelime metrikleri (\texttt{kw\_avg\_avg}) tüm yöntemlerde en önemli özellik olarak belirlenmiş olup, haberlerin popülerliğinde anahtar kelimelerin kritik rol oynadığını ortaya koymaktadır. Özellik seçimi, eğitim süresini yaklaşık 10 kat kısaltarak hesaplama verimliliği sağlamıştır. Gelecek çalışmalarda, farklı sınıflandırıcı algoritmalarının (Random Forest, SVM, Gradient Boosting vb.) özellik seçimi yöntemleriyle birlikte değerlendirilmesi ve en iyi özellik sayısının belirlenmesi için ek analizler yapılabilir.
+    Bu çalışmada, Online News Popularity veri kümesi üzerinde üç farklı özellik seçimi yönteminin sınıflandırma performansına etkisi incelenmiştir. Deneysel sonuçlar önemli bulgular ortaya koymuştur:
+
+    \begin{itemize}
+        \item \textbf{Optimal özellik sayısı analizi:} RFE yöntemi ile yapılan kapsamlı analiz sonucunda, 22 özellik ile \%65.63 doğruluk oranına ulaşılmış olup, bu değer 58 özellik kullanıldığında elde edilen \%65.52 değerinin üzerindedir. Bu sonuç, gereksiz özelliklerin modele gürültü kattığını ve optimal özellik alt kümesinin daha iyi genelleme yeteneği sağladığını göstermektedir.
+        
+        \item \textbf{Özellik seçimi yöntemleri karşılaştırması:} Sarmalayıcı (RFE) yöntemi, 15 özellik ile \%65.10 doğruluk oranı sağlayarak özellik seçimi yöntemleri arasında en başarılı performansı sergilemiştir. Bu sonuç, RFE yönteminin Lojistik Regresyon için optimize edilmiş özellik seçimi yapmasından kaynaklanmaktadır.
+        
+        \item \textbf{Özellik önemi:} Anahtar kelime metrikleri (\texttt{kw\_avg\_avg}) tüm yöntemlerde en önemli özellik olarak belirlenmiş olup, haberlerin popülerliğinde anahtar kelimelerin kritik rol oynadığını ortaya koymaktadır.
+        
+        \item \textbf{Hesaplama verimliliği:} Özellik seçimi, eğitim süresini yaklaşık 4-9 kat kısaltarak hesaplama verimliliği sağlamıştır.
+    \end{itemize}
+
+    Sonuç olarak, bu çalışma optimal özellik sayısının belirlenmesinin model performansını artırabileceğini ve özellik seçiminin sadece boyut azaltma değil, aynı zamanda performans iyileştirme aracı olarak da kullanılabileceğini göstermektedir. Gelecek çalışmalarda, farklı sınıflandırıcı algoritmalarının (Random Forest, SVM, Gradient Boosting vb.) özellik seçimi yöntemleriyle birlikte değerlendirilmesi planlanmaktadır.
 
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
