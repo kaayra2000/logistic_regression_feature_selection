@@ -1,0 +1,56 @@
+# ------------------------------------------------------------------
+# Varsayılan Davranış
+# ------------------------------------------------------------------
+# Tüm dosyaları metin olarak algıla ve satır sonlarını LF yap.
+# (Checkout yaparken de Windows'ta CRLF'e dönüştürmez, LF kalır)
+* text=auto eol=lf
+
+# ------------------------------------------------------------------
+# Binary (İkili) Dosyalar
+# ------------------------------------------------------------------
+# Bu dosyalar ASLA satır sonu dönüşümüne uğramamalıdır.
+# Yoksa dosyalar bozulur (Özellikle PDF ve görseller için kritik).
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.tar binary
+*.gz binary
+*.pyc binary
+
+# ------------------------------------------------------------------
+# Özel Dosya Türleri (Garantiye almak için)
+# ------------------------------------------------------------------
+
+# Kod dosyaları
+*.py text eol=lf
+*.cpp text eol=lf
+*.c text eol=lf
+*.h text eol=lf
+*.hpp text eol=lf
+*.js text eol=lf
+*.ts text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+
+# Yapılandırma ve Dokümantasyon
+*.json text eol=lf
+*.xml text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.gitignore text eol=lf
+*.gitattributes text eol=lf
+
+# ------------------------------------------------------------------
+# Windows Betikleri (İstisna)
+# ------------------------------------------------------------------
+# Batch dosyaları Windows'ta çalışacağı için CRLF kalması daha güvenlidir.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=lf
