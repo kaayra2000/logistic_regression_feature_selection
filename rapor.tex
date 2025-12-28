@@ -136,31 +136,43 @@
 
     \subsection{Ortak Özellik Analizi}
 
-    Yöntemler arasındaki özellik kesişimi analiz edildiğinde, Filtreleme ve Sarmalayıcı arasında 5, Filtreleme ve Gömülü arasında 5, Sarmalayıcı ve Gömülü arasında 8 ortak özellik bulunmaktadır. Tablo~\ref{tab:common_features}'da ortak bulunan özellikler gösterilmiştir.
+    Yöntemler arasındaki özellik kesişimi analiz edildiğinde, Filtreleme ve Sarmalayıcı arasında 5, Filtreleme ve Gömülü arasında 4, Sarmalayıcı ve Gömülü arasında 8 ortak özellik bulunmaktadır. Tablo~\ref{tab:common_features}'da ortak bulunan özellikler gösterilmiştir.
 
-    \begin{table}[H]
-    \caption{Yöntemler Arasında Ortak Özellikler}
+     \begin{table}[H]
+    \caption{Yöntemler Arasında Ortak Özellikler (En Az 2 Yöntemde Seçilenler)}
     \label{tab:common_features}
     \centering
+    \footnotesize
     \begin{tabular}{|l|c|c|c|}
     \hline
     \textbf{Özellik} & \textbf{Filt.} & \textbf{Sarm.} & \textbf{Göm.} \\
     \hline
+    \multicolumn{4}{|c|}{\textit{Üç Yöntemde Ortak (1 özellik)}} \\
+    \hline
     kw\_avg\_avg & \checkmark & \checkmark & \checkmark \\
+    \hline
+    \multicolumn{4}{|c|}{\textit{Filtreleme + Gömülü (3 özellik)}} \\
     \hline
     LDA\_02 & \checkmark & & \checkmark \\
     LDA\_04 & \checkmark & & \checkmark \\
     LDA\_01 & \checkmark & & \checkmark \\
-    LDA\_00 & & \checkmark & \checkmark \\
+    \hline
+    \multicolumn{4}{|c|}{\textit{Filtreleme + Sarmalayıcı (4 özellik)}} \\
     \hline
     is\_weekend & \checkmark & \checkmark & \\
     data\_channel\_is\_tech & \checkmark & \checkmark & \\
     data\_channel\_is\_socmed & \checkmark & \checkmark & \\
     kw\_min\_avg & \checkmark & \checkmark & \\
     \hline
+    \multicolumn{4}{|c|}{\textit{Sarmalayıcı + Gömülü (7 özellik)}} \\
+    \hline
+    LDA\_00 & & \checkmark & \checkmark \\
     kw\_max\_avg & & \checkmark & \checkmark \\
     n\_unique\_tokens & & \checkmark & \checkmark \\
     n\_non\_stop\_unique\_tokens & & \checkmark & \checkmark \\
+    kw\_avg\_max & & \checkmark & \checkmark \\
+    kw\_avg\_min & & \checkmark & \checkmark \\
+    self\_reference\_avg\_sharess & & \checkmark & \checkmark \\
     \hline
     \end{tabular}
     \end{table}
@@ -177,9 +189,9 @@
     \hline
     \textbf{Yöntem} & \textbf{Öz. Sayısı} & \textbf{Accuracy} & \textbf{F1-Skor} & \textbf{Süre (s)} \\
     \hline
-    Tüm Özellikler & 58 & 0.6552 & 0.6544 & 0.182 \\
-    Filtreleme & 15 & 0.6431 & 0.6413 & 0.017 \\
-    \textbf{Sarmalayıcı} & \textbf{15} & \textbf{0.6510} & \textbf{0.6502} & \textbf{0.035} \\
+    Tüm Özellikler & 58 & \textbf{0.6552} & \textbf{0.6544} & 0.182 \\
+    Filtreleme & 15 & 0.6431 & 0.6413 & \textbf{0.017} \\
+    \textbf{Sarmalayıcı} & 15 & \textbf{0.6510} & \textbf{0.6502} & 0.035 \\
     Gömülü & 15 & 0.6278 & 0.6253 & 0.022 \\
     \hline
     \end{tabular}
@@ -198,7 +210,7 @@
     Tüm yöntemler için eğitim ve validasyon skorları arasındaki fark hesaplanmıştır:
     \begin{itemize}
         \item Tüm Özellikler: Fark = 0.0023 (Aşırı öğrenme tespit edilmedi)
-        \item Filtreleme: Fark = -0.0000 (Aşırı öğrenme tespit edilmedi)
+        \item Filtreleme: Fark = 0 (Aşırı öğrenme tespit edilmedi)
         \item Sarmalayıcı: Fark = 0.0006 (Aşırı öğrenme tespit edilmedi)
         \item Gömülü: Fark = 0.0014 (Aşırı öğrenme tespit edilmedi)
     \end{itemize}
@@ -235,6 +247,18 @@
         \label{fig:all_confusion}
     \end{figure}
 
+    Karışıklık matrisleri incelendiğinde yöntemler arasında belirgin farklılıklar gözlemlenmektedir:
+
+    \begin{itemize}
+        \item \textbf{Tüm Özellikler:} En dengeli dağılıma sahiptir. True Positive (TP) oranı en yüksek (2959) olup, modelin popüler haberleri tespit etme kapasitesi en iyidir. Ancak False Positive (FP) değeri de görece yüksektir (1462), bu da bazı popüler olmayan haberlerin yanlış sınıflandırıldığını gösterir.
+        
+        \item \textbf{Filtreleme (Pearson):} Popüler haberleri tespit etmede (TP) makul performans gösterirken, True Negative (TN) değeri düşüktür. Bu durum, yöntemin doğrusal korelasyona dayalı olmasından kaynaklanmakta ve karmaşık ilişkileri yakalayamamaktadır.
+        
+        \item \textbf{Sarmalayıcı (RFE):} Tüm özellikler yöntemine en yakın sonuçları vermektedir. TP ve TN değerleri dengeli olup, özellik seçimi yöntemleri arasında en başarılı performansı sergilemektedir. RFE'nin Lojistik Regresyon ile optimize edilmiş olması bu başarıyı açıklamaktadır.
+        
+        \item \textbf{Gömülü (Random Forest):} En düşük TP değerine sahiptir, bu da popüler haberleri tespit etmede zorluk yaşadığını gösterir. Random Forest'ın özellik önem skorları, Lojistik Regresyon sınıflandırıcısı için optimal olmayan bir özellik kümesi seçmiş olabilir.
+    \end{itemize}
+
     Ayrıca yöntemlerin performans karşılaştırması Şekil~\ref{fig:method_comparison}'de grafik olarak sunulmuştur.
 
     \begin{figure}[H]
@@ -243,6 +267,20 @@
         \caption{Yöntem Performans Karşılaştırması}
         \label{fig:method_comparison}
     \end{figure}
+
+    Performans karşılaştırma grafiği analiz edildiğinde aşağıdaki çıkarımlar yapılabilir:
+
+    \begin{itemize}
+        \item \textbf{Doğruluk-Verimlilik Dengesi:} Tüm özellikler en yüksek doğruluğu sağlarken, eğitim süresi de en uzundur (0.182s). Özellik seçimi yöntemleri bu süreyi yaklaşık 5-10 kat kısaltmaktadır.
+        
+        \item \textbf{Yöntemler Arası Performans Farkı:} Tüm özellikler (\%65.52) ile Sarmalayıcı (\%65.10) arasındaki fark sadece \%0.42'dir. Bu, 15 özellik ile 58 özelliğe çok yakın performans elde edilebileceğini göstermektedir.
+        
+        \item \textbf{F1-Skor Tutarlılığı:} Accuracy ve F1-skor değerleri tüm yöntemlerde birbirine yakındır, bu da sınıf dengesizliğinin ciddi bir problem olmadığını göstermektedir.
+        
+        \item \textbf{En Hızlı Yöntem:} Filtreleme yöntemi 0.017s ile en kısa eğitim süresine sahiptir, ancak doğruluk açısından Sarmalayıcı'nın gerisinde kalmaktadır.
+        
+        \item \textbf{Gömülü Yöntem Performansı:} Random Forest tabanlı özellik seçimi, Lojistik Regresyon sınıflandırıcısı ile en düşük performansı vermiştir. Bu durum, ağaç tabanlı önem skorlarının doğrusal modeller için optimize olmadığını göstermektedir.
+    \end{itemize}
 
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
