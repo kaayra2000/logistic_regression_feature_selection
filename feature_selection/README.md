@@ -1,4 +1,4 @@
-# Feature Selection (Özellik Seçimi)
+# 🔬 Feature Selection (Özellik Seçimi)
 
 Bu klasör, Online News Popularity veri kümesi için üç farklı özellik seçimi yöntemini içermektedir.
 
@@ -6,22 +6,20 @@ Bu klasör, Online News Popularity veri kümesi için üç farklı özellik seç
 
 ```
 feature_selection/
-├── README.md                    # Bu dosya
+├── README.md                           # Bu dosya
 │
-├── # Helper Modülleri
-├── dataset_helper.py            # Veri kümesi yükleme/kaydetme işlemleri
-├── file_helper.py               # Dosya okuma/yazma işlemleri
-├── report_helper.py             # Rapor oluşturma fonksiyonları
+├── dataset_helper.py                   # Veri kümesi yükleme/kaydetme işlemleri
+├── file_helper.py                      # Dosya okuma/yazma işlemleri
+├── report_helper.py                    # Rapor oluşturma fonksiyonları
 │
-├── # Notebook'lar
-├── filter_method.ipynb          # Filtreleme Yöntemi - Pearson Korelasyonu
-├── wrapper_method.ipynb         # Sarmalayıcı Yöntem - RFE + Lojistik Regresyon
-├── embedded_method.ipynb        # Gömülü Yöntem - Random Forest
+├── filter_method.ipynb                 # Filtreleme Yöntemi (Pearson)
+├── wrapper_method.ipynb                # Sarmalayıcı Yöntem (RFE)
+├── embedded_method.ipynb               # Gömülü Yöntem (Random Forest)
 │
-├── # Oluşturulan Raporlar (notebook'lar çalıştırıldıktan sonra)
-├── filter_analysis_report.md
-├── wrapper_analysis_report.md
-└── embedded_analysis_report.md
+├── filter_analysis_report.md           # Filtreleme analiz raporu
+├── wrapper_analysis_report.md          # Sarmalayıcı analiz raporu
+├── embedded_analysis_report.md         # Gömülü analiz raporu
+└── general_analysis.md                 # Genel karşılaştırma analizi
 ```
 
 ## 🔬 Yöntemler
