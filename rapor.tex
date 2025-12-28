@@ -1,0 +1,274 @@
+    \documentclass[conference]{IEEEtran}
+    \usepackage[utf8]{inputenc}
+    \usepackage[T1]{fontenc}
+    \usepackage[turkish]{babel}
+    \usepackage{etoolbox}
+    \AtBeginDocument{\shorthandoff{=}}
+    \usepackage{graphicx}
+    \usepackage{amsmath}
+\usepackage{amssymb}  % \checkmark için
+    \usepackage{booktabs} % Güzel tablolar için
+    \usepackage{float}    % [H] ile figürleri sabitlemek için
+    \usepackage{subcaption} % Alt figürler için (subfigure)
+    \usepackage[hyphens]{url} % URL'leri düzgün kırmak için
+    \usepackage{hyperref} % Referanslar için
+    \usepackage{multirow} % Çok satırlı tablolar için
+    \usepackage{array}    % Tablo genişliği için
+
+    % Doküman Başlığı ve Yazar Bilgisi
+    \title{Öğrenme Modellerinde Özellik Seçimi: Online News Popularity Veri Kümesi Üzerinde Karşılaştırmalı Analiz}
+
+    % Kullanıcının istediği yazar bilgisi
+    \author{\IEEEauthorblockN{Muhammed Kayra Bulut - 25501805}
+    \IEEEauthorblockA{Makine Öğrenmesi Dersi 2. Ödevi}
+    }
+
+
+    \begin{document}
+
+    \maketitle
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \begin{abstract}
+    Bu çalışmada, Online News Popularity veri kümesi üzerinde üç farklı özellik seçimi yönteminin ikili sınıflandırma performansına etkisi incelenmiştir. Filtreleme (Pearson Korelasyonu), Sarmalayıcı (RFE + Lojistik Regresyon) ve Gömülü (Random Forest) yöntemleri kullanılarak en önemli 15 özellik belirlenmiştir. Lojistik Regresyon sınıflandırıcısı ile 5-fold cross validation yöntemi uygulanarak modeller değerlendirilmiştir. Deneysel sonuçlar, tüm özelliklerin kullanıldığı modelin \%65.52 doğruluk oranı ile en yüksek performansı sağladığını, ancak özellik seçimi yöntemlerinin hesaplama maliyetini önemli ölçüde azalttığını göstermektedir. Sarmalayıcı yöntem (RFE), 15 özellik ile \%65.10 doğruluk oranına ulaşarak özellik seçimi yöntemleri arasında en başarılı sonucu vermiştir.
+    \end{abstract}
+
+    \begin{IEEEkeywords}
+    Özellik seçimi, Lojistik regresyon, Pearson korelasyonu, RFE, Random Forest, Online News Popularity, Makine öğrenmesi
+    \end{IEEEkeywords}
+
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \section{Giriş}
+
+    Günümüzde çevrimiçi haber platformları, milyonlarca makalenin paylaşıldığı ve tüketildiği dijital ortamlardır. Bir haberin popüler olup olmayacağını tahmin edebilmek, içerik üreticileri ve medya kuruluşları için stratejik bir öneme sahiptir. Bu bağlamda makine öğrenmesi yöntemleri, çeşitli özellikler kullanarak haber popülerliğini tahmin etmekte yaygın olarak kullanılmaktadır~\cite{fernandes2015proactive}.
+
+    Özellik seçimi, makine öğrenmesi modellerinin performansını artırmak, eğitim süresini kısaltmak ve aşırı öğrenmeyi (overfitting) önlemek için kritik bir ön işleme adımıdır~\cite{guyon2003introduction}. Yüksek boyutlu veri kümelerinde, gereksiz veya gürültülü özellikler modelin genelleme yeteneğini olumsuz etkileyebilmektedir. Bu nedenle, en ayırt edici özelliklerin seçilmesi model performansı açısından büyük önem taşımaktadır.
+
+    Bu çalışmanın amacı, UCI Machine Learning Repository'den alınan Online News Popularity veri kümesi üzerinde farklı özellik seçimi yöntemlerinin sınıflandırma performansına etkisini karşılaştırmalı olarak analiz etmektir. Çalışma kapsamında Filtreleme (Pearson Korelasyonu), Sarmalayıcı (RFE + Lojistik Regresyon) ve Gömülü (Random Forest Feature Importance) yöntemleri uygulanarak en önemli 15 özellik belirlenmiş ve bu özelliklerle eğitilen modellerin performansları karşılaştırılmıştır.
+
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \section{Yöntem ve Veri Kümesi}
+
+    \subsection{Veri Kümesi}
+
+    Bu çalışmada Mashable platformundan derlenen Online News Popularity veri kümesi kullanılmıştır~\cite{fernandes2015proactive}. Veri kümesi, 39.644 haber makalesine ait 61 özellik içermektedir. Her bir makale için içerik özellikleri (kelime sayısı, görsel sayısı vb.), zaman özellikleri (yayın günü, hafta sonu durumu), anahtar kelime metrikleri, doğal dil işleme özellikleri (LDA konu modeli, sentiment analizi) ve referans bilgileri (bağlantı sayısı, paylaşım istatistikleri) bulunmaktadır.
+
+    \subsection{Veri Ön İşleme}
+
+    Veri ön işleme adımları aşağıdaki şekilde gerçekleştirilmiştir:
+
+    \begin{enumerate}
+        \item \textbf{Gereksiz özellik çıkarımı:} Ayırt edici bilgi içermeyen \texttt{url} ve \texttt{timedelta} özellikleri veri kümesinden çıkarılmıştır.
+        
+        \item \textbf{Hedef değişken dönüşümü:} \texttt{shares} sütunu medyan değeri olan 1.400 eşik alınarak ikili sınıf etiketine dönüştürülmüştür. $shares \geq 1400$ durumunda $y=1$ (popüler), aksi halde $y=0$ (popüler değil) olarak etiketlenmiştir.
+        
+        \item \textbf{Veri bölme:} İşlenmiş veri kümesi \%80 eğitim ve \%20 test olarak ayrılmıştır.
+        
+        \item \textbf{Cross validation:} Eğitim verisi üzerinde 5-fold stratified cross validation yöntemi uygulanmıştır.
+    \end{enumerate}
+
+    İşleme sonrasında toplam 59 özellik elde edilmiştir.
+
+    \subsection{Özellik Seçimi Yöntemleri}
+
+    \subsubsection{Filtreleme Yöntemi (Pearson Korelasyonu)}
+
+    Filtreleme yönteminde, her bir özellik ile hedef değişken arasındaki Pearson korelasyon katsayısı hesaplanmıştır~\cite{hall1999correlation}. Pearson korelasyon katsayısı, iki değişken arasındaki doğrusal ilişkinin gücünü ve yönünü ölçer. Bu yöntemde mutlak değeri en yüksek korelasyona sahip 15 özellik seçilmiştir. Filtreleme yöntemi model bağımsız olması ve hesaplama açısından verimli olması ile avantaj sağlamaktadır.
+
+    \subsubsection{Sarmalayıcı Yöntem (RFE + Lojistik Regresyon)}
+
+    Sarmalayıcı yöntemde Recursive Feature Elimination (RFE) algoritması Lojistik Regresyon sınıflandırıcısı ile birlikte kullanılmıştır~\cite{guyon2002gene}. RFE, başlangıçta tüm özelliklerle model eğitir ve her iterasyonda model katsayılarına göre en az önemli özelliği elemine eder. Bu süreç istenilen özellik sayısına (15) ulaşılana kadar devam eder. Model parametreleri olarak \texttt{solver='lbfgs'} ve \texttt{max\_iter=1000} kullanılmıştır.
+
+    \subsubsection{Gömülü Yöntem (Random Forest Feature Importance)}
+
+    Gömülü yöntemde Random Forest sınıflandırıcısının özellik önem skorları kullanılmıştır~\cite{breiman2001random}. Random Forest, birden fazla karar ağacı eğiterek her özelliğin ağaçlardaki bölünmelere katkısını hesaplar. Gini safsızlığı (impurity) azalmasına göre önem skorları belirlenir. En yüksek önem skoruna sahip 15 özellik seçilmiştir. Model 100 ağaç (\texttt{n\_estimators=100}) ile eğitilmiştir.
+
+    \subsection{Sınıflandırıcı Model}
+
+    Performans karşılaştırması için Lojistik Regresyon sınıflandırıcısı kullanılmıştır. Model parametreleri varsayılan değerlerde tutulmuş (\texttt{C=1.0}, \texttt{solver='lbfgs'}) ve 5-fold stratified cross validation ile eğitilmiştir. Aşırı öğrenme tespiti için eğitim ve validasyon skorları karşılaştırılmıştır.
+
+    \subsection{Performans Metrikleri}
+
+    Model performansı aşağıdaki metriklerle değerlendirilmiştir:
+    \begin{itemize}
+        \item \textbf{Doğruluk (Accuracy):} Doğru tahmin edilen örneklerin toplam örnek sayısına oranı.
+        \item \textbf{F1-Skoru:} Kesinlik ve duyarlılığın harmonik ortalaması.
+        \item \textbf{Eğitim Süresi:} Modelin eğitim için harcadığı süre (saniye).
+    \end{itemize}
+
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \section{Deneysel Analiz}
+
+    \subsection{Özellik Seçimi Sonuçları}
+
+    Her bir özellik seçimi yönteminin belirlediği en önemli 15 özellik Tablo~\ref{tab:selected_features}'de verilmiştir. Her yöntem farklı özellik kümeleri seçmiş olup, yalnızca \texttt{kw\_avg\_avg} özelliği üç yöntemde de ortak olarak seçilmiştir.
+
+    \begin{table}[H]
+    \caption{Farklı Yöntemlerle Seçilen Özellikler}
+    \label{tab:selected_features}
+    \centering
+    \footnotesize
+    \begin{tabular}{|c|l|l|l|}
+    \hline
+    \textbf{Sıra} & \textbf{Filtreleme} & \textbf{Sarmalayıcı} & \textbf{Gömülü} \\
+    \hline
+    1 & LDA\_02 & n\_non\_stop\_words & kw\_avg\_avg \\
+    2 & kw\_avg\_avg & n\_non\_stop\_uniq. & kw\_max\_avg \\
+    3 & data\_ch\_is\_world & n\_unique\_tokens & LDA\_02 \\
+    4 & is\_weekend & kw\_avg\_avg & self\_ref\_min\_sh. \\
+    5 & data\_ch\_is\_enter. & kw\_max\_avg & kw\_avg\_min \\
+    6 & data\_ch\_is\_socmed & data\_ch\_is\_tech & kw\_avg\_max \\
+    7 & weekday\_is\_sat. & is\_weekend & LDA\_01 \\
+    8 & data\_ch\_is\_tech & LDA\_00 & self\_ref\_avg\_sh. \\
+    9 & LDA\_04 & data\_ch\_is\_socmed & LDA\_04 \\
+    10 & kw\_min\_avg & kw\_min\_min & LDA\_00 \\
+    11 & num\_hrefs & kw\_avg\_max & n\_unique\_tokens \\
+    12 & weekday\_is\_sunday & kw\_min\_avg & global\_subject. \\
+    13 & LDA\_01 & kw\_avg\_min & n\_non\_stop\_uniq. \\
+    14 & global\_sent\_polar. & self\_ref\_avg\_sh. & avg\_token\_length \\
+    15 & num\_keywords & kw\_max\_min & LDA\_03 \\
+    \hline
+    \end{tabular}
+    \end{table}
+
+    \subsection{Ortak Özellik Analizi}
+
+    Yöntemler arasındaki özellik kesişimi analiz edildiğinde, Filtreleme ve Sarmalayıcı arasında 5, Filtreleme ve Gömülü arasında 5, Sarmalayıcı ve Gömülü arasında 8 ortak özellik bulunmaktadır. Tablo~\ref{tab:common_features}'da ortak bulunan özellikler gösterilmiştir.
+
+    \begin{table}[H]
+    \caption{Yöntemler Arasında Ortak Özellikler}
+    \label{tab:common_features}
+    \centering
+    \begin{tabular}{|l|c|c|c|}
+    \hline
+    \textbf{Özellik} & \textbf{Filt.} & \textbf{Sarm.} & \textbf{Göm.} \\
+    \hline
+    kw\_avg\_avg & \checkmark & \checkmark & \checkmark \\
+    \hline
+    LDA\_02 & \checkmark & & \checkmark \\
+    LDA\_04 & \checkmark & & \checkmark \\
+    LDA\_01 & \checkmark & & \checkmark \\
+    LDA\_00 & & \checkmark & \checkmark \\
+    \hline
+    is\_weekend & \checkmark & \checkmark & \\
+    data\_channel\_is\_tech & \checkmark & \checkmark & \\
+    data\_channel\_is\_socmed & \checkmark & \checkmark & \\
+    kw\_min\_avg & \checkmark & \checkmark & \\
+    \hline
+    kw\_max\_avg & & \checkmark & \checkmark \\
+    n\_unique\_tokens & & \checkmark & \checkmark \\
+    n\_non\_stop\_unique\_tokens & & \checkmark & \checkmark \\
+    \hline
+    \end{tabular}
+    \end{table}
+
+    \subsection{Model Performans Karşılaştırması}
+
+    Tüm özellikler ve özellik seçimi yöntemleriyle elde edilen alt kümeler üzerinde Lojistik Regresyon modeli eğitilmiş ve test sonuçları Tablo~\ref{tab:performance}'de özetlenmiştir.
+
+    \begin{table}[H]
+    \caption{Lojistik Regresyon Performans Sonuçları}
+    \label{tab:performance}
+    \centering
+    \begin{tabular}{|l|c|c|c|c|}
+    \hline
+    \textbf{Yöntem} & \textbf{Öz. Sayısı} & \textbf{Accuracy} & \textbf{F1-Skor} & \textbf{Süre (s)} \\
+    \hline
+    Tüm Özellikler & 58 & 0.6552 & 0.6544 & 0.182 \\
+    Filtreleme & 15 & 0.6431 & 0.6413 & 0.017 \\
+    \textbf{Sarmalayıcı} & \textbf{15} & \textbf{0.6510} & \textbf{0.6502} & \textbf{0.035} \\
+    Gömülü & 15 & 0.6278 & 0.6253 & 0.022 \\
+    \hline
+    \end{tabular}
+    \end{table}
+
+    Sonuçlara göre:
+    \begin{itemize}
+        \item Tüm özelliklerle (58 özellik) eğitilen model \%65.52 doğruluk oranı ile en yüksek performansı sağlamıştır.
+        \item Özellik seçimi yöntemleri arasında \textbf{Sarmalayıcı (RFE)} yöntemi \%65.10 doğruluk oranı ile en başarılı sonucu vermiştir.
+        \item Filtreleme yöntemi \%64.31, Gömülü yöntem ise \%62.78 doğruluk oranlarına ulaşmıştır.
+        \item Eğitim süresi açısından özellik seçimi yöntemleri önemli avantaj sağlamıştır. Filtreleme yöntemi 0.017 saniye ile en hızlı eğitim süresine sahiptir.
+    \end{itemize}
+
+    \subsection{Aşırı Öğrenme Analizi}
+
+    Tüm yöntemler için eğitim ve validasyon skorları arasındaki fark hesaplanmıştır:
+    \begin{itemize}
+        \item Tüm Özellikler: Fark = 0.0023 (Aşırı öğrenme tespit edilmedi)
+        \item Filtreleme: Fark = -0.0000 (Aşırı öğrenme tespit edilmedi)
+        \item Sarmalayıcı: Fark = 0.0006 (Aşırı öğrenme tespit edilmedi)
+        \item Gömülü: Fark = 0.0014 (Aşırı öğrenme tespit edilmedi)
+    \end{itemize}
+
+    Hiçbir yöntemde aşırı öğrenme tespit edilmemiştir. Bu durum, Lojistik Regresyonun L2 regularization özelliği sayesinde modelin genelleme yeteneğini koruduğunu göstermektedir.
+
+    \subsection{Karışıklık Matrisi}
+
+    En başarılı yöntem olan Tüm Özellikler için karışıklık matrisi Şekil~\ref{fig:confusion_matrix}'de verilmiştir.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\linewidth]{best_method_confusion_matrix.png}
+        \caption{Tüm Özellikler Yöntemi İçin Karışıklık Matrisi}
+        \label{fig:confusion_matrix}
+    \end{figure}
+
+    Karışıklık matrisine göre:
+    \begin{itemize}
+        \item \textbf{True Negative (TN):} 2236 örnek doğru olarak "popüler değil" olarak tahmin edilmiştir.
+        \item \textbf{False Positive (FP):} 1462 örnek yanlışlıkla "popüler" olarak tahmin edilmiştir.
+        \item \textbf{False Negative (FN):} 1272 örnek yanlışlıkla "popüler değil" olarak tahmin edilmiştir.
+        \item \textbf{True Positive (TP):} 2959 örnek doğru olarak "popüler" olarak tahmin edilmiştir.
+    \end{itemize}
+
+    \subsection{Yöntem Karşılaştırma Grafiği}
+
+    Tüm yöntemlerin karışıklık matrisleri Şekil~\ref{fig:all_confusion}'da karşılaştırmalı olarak gösterilmiştir.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\linewidth]{all_confusion_matrices.png}
+        \caption{Tüm Yöntemler İçin Karışıklık Matrisleri}
+        \label{fig:all_confusion}
+    \end{figure}
+
+    Ayrıca yöntemlerin performans karşılaştırması Şekil~\ref{fig:method_comparison}'de grafik olarak sunulmuştur.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\linewidth]{method_comparison.png}
+        \caption{Yöntem Performans Karşılaştırması}
+        \label{fig:method_comparison}
+    \end{figure}
+
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \section{Sonuç}
+
+    Bu çalışmada, Online News Popularity veri kümesi üzerinde üç farklı özellik seçimi yönteminin sınıflandırma performansına etkisi incelenmiştir. Deneysel sonuçlar, tüm özelliklerin kullanılmasının en yüksek doğruluk oranını (\%65.52) sağladığını, ancak özellik sayısının 15'e düşürülmesiyle bile rekabetçi sonuçlar elde edilebileceğini göstermektedir. Özellik seçimi yöntemleri arasında Sarmalayıcı (RFE) yöntemi \%65.10 doğruluk oranı ile en başarılı performansı sergilemiştir. Bu sonuç, RFE yönteminin Lojistik Regresyon için optimize edilmiş özellik seçimi yapmasından kaynaklanmaktadır. Anahtar kelime metrikleri (\texttt{kw\_avg\_avg}) tüm yöntemlerde en önemli özellik olarak belirlenmiş olup, haberlerin popülerliğinde anahtar kelimelerin kritik rol oynadığını ortaya koymaktadır. Özellik seçimi, eğitim süresini yaklaşık 10 kat kısaltarak hesaplama verimliliği sağlamıştır. Gelecek çalışmalarda, farklı sınıflandırıcı algoritmalarının (Random Forest, SVM, Gradient Boosting vb.) özellik seçimi yöntemleriyle birlikte değerlendirilmesi ve en iyi özellik sayısının belirlenmesi için ek analizler yapılabilir.
+
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    \begin{thebibliography}{99}
+
+    \bibitem{fernandes2015proactive}
+    K. Fernandes, P. Vinagre, and P. Cortez, ``A proactive intelligent decision support system for predicting the popularity of online news,'' in \textit{Portuguese Conference on Artificial Intelligence}, Springer, 2015, pp. 535--546.
+
+    \bibitem{guyon2003introduction}
+    I. Guyon and A. Elisseeff, ``An introduction to variable and feature selection,'' \textit{Journal of machine learning research}, vol. 3, pp. 1157--1182, 2003.
+
+    \bibitem{hall1999correlation}
+    M. A. Hall, ``Correlation-based feature selection for machine learning,'' Ph.D. dissertation, University of Waikato, 1999.
+
+    \bibitem{guyon2002gene}
+    I. Guyon, J. Weston, S. Barnhill, and V. Vapnik, ``Gene selection for cancer classification using support vector machines,'' \textit{Machine learning}, vol. 46, no. 1-3, pp. 389--422, 2002.
+
+    \bibitem{breiman2001random}
+    L. Breiman, ``Random forests,'' \textit{Machine learning}, vol. 45, no. 1, pp. 5--32, 2001.
+
+    \end{thebibliography}
+
+    \end{document}
